@@ -4,117 +4,118 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-
 import javax.swing.table.DefaultTableModel;
 
-import Entity.Passenger;
-import List.PassengerList;
+import Entity.TrainRoute;
+import List.TrainRouteList;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class PassengerListGUI extends JFrame implements ActionListener, TableModelListener {
+public class TrainRouteGUI extends JFrame implements ActionListener, TableModelListener {
 
-    private PassengerList passengerList;
+    private TrainRouteList trainRouteList;
     private JTable table;
     private DefaultTableModel model;
-    private JTextField idField, nameField, contactField, emailField, searchField;
+    private JTextField idField, sourceField, destinationField, distanceField, durationField, searchField;
     private JComboBox<String> searchDropdown;
     private JPanel contentPane;
-    // Font size adjustment
     private Font labelFont = new Font("Arial", Font.PLAIN, 18);
     private Font fieldFont = new Font("Arial", Font.PLAIN, 16);
     private Font tableFont = new Font("Arial", Font.PLAIN, 18);
     private Font comboFont = new Font("Arial", Font.PLAIN, 16);
 
-    public PassengerListGUI() {
-        super("Passenger List");
-        passengerList = new PassengerList(100, "GUI/Resources/passengers.txt");
-        passengerList.loadFromFile();
+    public TrainRouteGUI() {
+        super("Train Route List");
+        trainRouteList = new TrainRouteList(100, "GUI/Resources/TrainRouteList.txt");
+        trainRouteList.loadFromFile();
 
-        // set the frame properties
-        setTitle("Passenger List");
+        setTitle("Train Route List");
         setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIconImage(new ImageIcon("GUI/Resources/train.jpeg").getImage());
-        // Create table model and table
-        String[] columnNames = { "ID", "Name", "Contact", "Email" };
+
+        String[] columnNames = { "ID", "Source", "Destination", "Distance(KM)", "Duration(Hours)" };
         model = new DefaultTableModel(columnNames, 0);
         model.addTableModelListener(this);
         table = new JTable(model);
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.setAutoCreateRowSorter(true);
-        // Adjust font and row height for table
+
         table.setFont(tableFont);
         table.setRowHeight(30);
 
-        // Populate table with passengers
-        for (Passenger passenger : passengerList.getAllPassengers()) {
-            Object[] row = { passenger.getPassengerID(), passenger.getPassengerName(), passenger.getPassengerContact(),
-                    passenger.getPassengerEmail() };
+        for (TrainRoute route : trainRouteList.getAllRoutes()) {
+            Object[] row = { route.getID(), route.getSource(), route.getDestination(), route.getDistance(),
+                    route.getDuration() };
             model.addRow(row);
         }
 
-        // Create input fields
         idField = new JTextField(10);
         idField.setFont(fieldFont);
 
-        nameField = new JTextField(10);
-        nameField.setFont(fieldFont);
+        sourceField = new JTextField(10);
+        sourceField.setFont(fieldFont);
 
-        contactField = new JTextField(10);
-        contactField.setFont(fieldFont);
-        emailField = new JTextField(10);
-        emailField.setFont(fieldFont);
+        destinationField = new JTextField(10);
+        destinationField.setFont(fieldFont);
 
-        // Create buttons
+        distanceField = new JTextField(10);
+        distanceField.setFont(fieldFont);
+
+        durationField = new JTextField(10);
+        durationField.setFont(fieldFont);
+
         JButton addButton = new JButton("Add");
         addButton.addActionListener(this);
         addButton.setBackground(new Color(0, 153, 0));
         addButton.setForeground(Color.WHITE);
         addButton.setFont(new Font("Arial", Font.BOLD, 14));
+
         JButton removeButton = new JButton("Remove");
         removeButton.addActionListener(this);
         removeButton.setBackground(new Color(204, 0, 0));
         removeButton.setForeground(Color.WHITE);
         removeButton.setFont(new Font("Arial", Font.BOLD, 14));
+
         JButton updateButton = new JButton("Update");
         updateButton.addActionListener(this);
         updateButton.setBackground(new Color(0, 102, 204));
         updateButton.setForeground(Color.WHITE);
         updateButton.setFont(new Font("Arial", Font.BOLD, 14));
+
         JButton searchButton = new JButton("Search");
         searchButton.addActionListener(this);
         searchButton.setBackground(new Color(255, 153, 0));
         searchButton.setForeground(Color.WHITE);
         searchButton.setFont(new Font("Arial", Font.BOLD, 14));
+
         JButton backButton = new JButton("Go back to Dashboard");
         backButton.addActionListener(this);
         backButton.setBackground(new Color(255, 153, 0));
         backButton.setForeground(Color.WHITE);
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
-
-        // Create dropdowns and search button
-        searchDropdown = new JComboBox<>(new String[] { "ID", "Name" });
+        searchDropdown = new JComboBox<>(new String[] { "ID" });
         searchDropdown.setFont(comboFont);
         searchField = new JTextField(10);
         searchField.setFont(fieldFont);
         searchButton.addActionListener(this);
 
-        // Create panel for input fields and buttons
-        JPanel inputPanel = new JPanel(new GridLayout(3, 4, 10, 10));
+        JPanel inputPanel = new JPanel(new GridLayout(5, 4, 5, 5));
         inputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         inputPanel.setBackground(Color.WHITE);
         inputPanel.add(createLabel("ID:"));
         inputPanel.add(idField);
-        inputPanel.add(createLabel("Name:"));
-        inputPanel.add(nameField);
-        inputPanel.add(createLabel("Contact:"));
-        inputPanel.add(contactField);
-        inputPanel.add(createLabel("Email:"));
-        inputPanel.add(emailField);
+        inputPanel.add(createLabel("Source:"));
+        inputPanel.add(sourceField);
+        inputPanel.add(createLabel("Destination:"));
+        inputPanel.add(destinationField);
+        inputPanel.add(createLabel("Distance:"));
+        inputPanel.add(distanceField);
+        inputPanel.add(createLabel("Duration:"));
+        inputPanel.add(durationField);
         inputPanel.add(createLabel("Search by:"));
         inputPanel.add(searchDropdown);
         inputPanel.add(createLabel("Search text:"));
@@ -125,7 +126,6 @@ public class PassengerListGUI extends JFrame implements ActionListener, TableMod
         inputPanel.add(updateButton);
         inputPanel.add(backButton);
 
-        // Create content pane with background image
         contentPane = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -139,7 +139,6 @@ public class PassengerListGUI extends JFrame implements ActionListener, TableMod
         contentPane.add(new JScrollPane(table), BorderLayout.CENTER);
         contentPane.add(inputPanel, BorderLayout.SOUTH);
 
-        // Add content pane to frame
         setContentPane(contentPane);
         setResizable(true);
 
@@ -160,44 +159,33 @@ public class PassengerListGUI extends JFrame implements ActionListener, TableMod
                 String searchText = searchField.getText();
                 if (searchDropdown.getSelectedItem().equals("ID")) {
                     int searchID = Integer.parseInt(searchText);
-                    Passenger passenger = passengerList.getPassengerByID(searchID);
-                    if (passenger != null) {
+                    TrainRoute route = trainRouteList.getRouteByID(searchID);
+                    if (route != null) {
                         model.setRowCount(0);
-                        Object[] row = { passenger.getPassengerID(), passenger.getPassengerName(),
-                                passenger.getPassengerContact(), passenger.getPassengerEmail() };
+                        Object[] row = { route.getID(), route.getSource(), route.getDestination(), route.getDistance(),
+                                route.getDuration() };
                         model.addRow(row);
                     } else {
-                        JOptionPane.showMessageDialog(contentPane, "Passenger with ID " + searchID + " not found.",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(contentPane, "Route with ID " + searchID + " not found.", "Error",
+                                JOptionPane.ERROR_MESSAGE);
                     }
-                } else if (searchDropdown.getSelectedItem().equals("Name")) {
-                    Passenger[] passengers = passengerList.getPassengersByName(searchText);
-                    if (passengers != null && passengers.length > 0) {
-                        model.setRowCount(0);
-                        for (Passenger passenger : passengers) {
-                            Object[] row = { passenger.getPassengerID(), passenger.getPassengerName(),
-                                    passenger.getPassengerContact(), passenger.getPassengerEmail() };
-                            model.addRow(row);
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(contentPane, "Passenger with name " + searchText + " not found.",
-                                "Error", JOptionPane.ERROR_MESSAGE);
-                    }
+
                 }
             } else if (button.getText().equals("Add")) {
                 int id = Integer.parseInt(idField.getText());
-                String name = nameField.getText();
-                String contact = contactField.getText();
-                String email = emailField.getText();
-                Passenger passenger = new Passenger(id, name, contact, email);
-                if (passengerList.getPassengerByID(id) == null) {
-                    passengerList.addPassenger(passenger);
-                    passengerList.saveToFile();
-                    Object[] row = { id, name, contact, email };
+                String source = sourceField.getText();
+                String destination = destinationField.getText();
+                int distance = Integer.parseInt(distanceField.getText());
+                int duration = Integer.parseInt(durationField.getText());
+                TrainRoute route = new TrainRoute(id, source, destination, distance, duration);
+                if (trainRouteList.getRouteByID(id) == null) {
+                    trainRouteList.addRoute(route);
+                    trainRouteList.saveToFile();
+                    Object[] row = { id, source, destination, distance, duration };
                     model.addRow(row);
                     clearFields();
                 } else {
-                    JOptionPane.showMessageDialog(contentPane, "Passenger with ID " + id + " already exists.", "Error",
+                    JOptionPane.showMessageDialog(contentPane, "Route with ID " + id + " already exists.", "Error",
                             JOptionPane.ERROR_MESSAGE);
                     clearFields();
                 }
@@ -205,8 +193,8 @@ public class PassengerListGUI extends JFrame implements ActionListener, TableMod
                 int selectedRow = table.getSelectedRow();
                 if (selectedRow != -1) {
                     int id = (int) model.getValueAt(selectedRow, 0);
-                    Passenger passenger = passengerList.getPassengerByID(id);
-                    passengerList.removePassenger(passenger);
+                    TrainRoute route = trainRouteList.getRouteByID(id);
+                    trainRouteList.removeRoute(route);
                     model.removeRow(selectedRow);
                     clearFields();
                 }
@@ -214,33 +202,38 @@ public class PassengerListGUI extends JFrame implements ActionListener, TableMod
                 int selectedRow = table.getSelectedRow();
                 if (selectedRow != -1) {
                     int id = (int) model.getValueAt(selectedRow, 0);
-                    Passenger passenger = passengerList.getPassengerByID(id);
-                    if (passenger != null) {
-                        String name = nameField.getText();
-                        String contact = contactField.getText();
-                        String email = emailField.getText();
-                        if (!name.equals("")) {
-                            passenger.setPassengerName(name);
-                            model.setValueAt(name, selectedRow, 1);
+                    TrainRoute route = trainRouteList.getRouteByID(id);
+                    if (route != null) {
+                        String source = sourceField.getText();
+                        String destination = destinationField.getText();
+                        int distance = Integer.parseInt(distanceField.getText());
+                        int duration = Integer.parseInt(durationField.getText());
+
+                        if (!source.equals("")) {
+                            route.setSource(source);
+                            model.setValueAt(source, selectedRow, 1);
                         }
-                        if (!contact.equals("")) {
-                            passenger.setPassengerContact(contact);
-                            model.setValueAt(contact, selectedRow, 2);
+                        if (!destination.equals("")) {
+                            route.setDestination(destination);
+                            model.setValueAt(destination, selectedRow, 2);
                         }
-                        if (!email.equals("")) {
-                            passenger.setPassengerEmail(email);
-                            model.setValueAt(email, selectedRow, 3);
+                        if (!distanceField.getText().equals("")) {
+                            route.setDistance(distance);
+                            model.setValueAt(distance, selectedRow, 3);
                         }
-                        passengerList.updatePassenger(passenger);
+                        if (!durationField.getText().equals("")) {
+                            route.setDuration(duration);
+                            model.setValueAt(duration, selectedRow, 4);
+                        }
+
+                        trainRouteList.updateRoute(route);
                         clearFields();
                     } else {
-                        JOptionPane.showMessageDialog(contentPane, "Passenger with ID " + id + " not found.", "Error",
+                        JOptionPane.showMessageDialog(contentPane, "Route with ID " + id + " not found.", "Error",
                                 JOptionPane.ERROR_MESSAGE);
                     }
                 }
-            }
-
-            else if (button.getText().equals("Go back to Dashboard")) {
+            } else if (button.getText().equals("Go back to Dashboard")) {
                 dispose();
                 DashboardGUI dashboardGUI = new DashboardGUI();
                 dashboardGUI.setVisible(true);
@@ -250,9 +243,10 @@ public class PassengerListGUI extends JFrame implements ActionListener, TableMod
 
     private void clearFields() {
         idField.setText("");
-        nameField.setText("");
-        contactField.setText("");
-        emailField.setText("");
+        sourceField.setText("");
+        destinationField.setText("");
+        distanceField.setText("");
+        durationField.setText("");
     }
 
     @Override
@@ -263,21 +257,26 @@ public class PassengerListGUI extends JFrame implements ActionListener, TableMod
 
             int id = (int) model.getValueAt(row, 0);
             String value = (String) model.getValueAt(row, column);
-            Passenger passenger = passengerList.getPassengerByID(id);
+            TrainRoute route = trainRouteList.getRouteByID(id);
 
-            if (passenger != null) {
+            if (route != null) {
                 switch (column) {
                     case 1:
-                        passenger.setPassengerName(value);
+                        route.setSource(value);
                         break;
                     case 2:
-                        passenger.setPassengerContact(value);
+                        route.setDestination(value);
                         break;
                     case 3:
-                        passenger.setPassengerEmail(value);
+                        int distance = Integer.parseInt(value);
+                        route.setDistance(distance);
+                        break;
+                    case 4:
+                        int duration = Integer.parseInt(value);
+                        route.setDuration(duration);
                         break;
                 }
-                passengerList.updatePassenger(passenger);
+                trainRouteList.updateRoute(route);
             }
         }
     }
@@ -293,7 +292,7 @@ public class PassengerListGUI extends JFrame implements ActionListener, TableMod
         } catch (Exception e) {
             // Use default look and feel
         }
-        PassengerListGUI passengerListGUI = new PassengerListGUI();
-        passengerListGUI.setVisible(true);
+        TrainRouteGUI trainRouteGUI = new TrainRouteGUI();
+        trainRouteGUI.setVisible(true);
     }
 }

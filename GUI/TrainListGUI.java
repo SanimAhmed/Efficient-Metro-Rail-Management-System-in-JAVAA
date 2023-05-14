@@ -1,9 +1,12 @@
 package GUI;
 
 import Entity.Train;
+import Entity.TrainRoute;
+import Entity.TrainSchedule;
 import List.TrainList;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
+import List.TrainRouteList;
+import List.TrainScheduleList;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -11,13 +14,15 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class TrainListGUI extends JFrame implements ActionListener, TableModelListener {
-
+public class TrainListGUI extends JFrame implements ActionListener {
     private TrainList trainList;
+    private TrainRouteList trainRouteList;
+    private TrainScheduleList scheduleList;
     private DefaultTableModel model;
     private JTable table;
-    private JTextField idField, nameField, sourceField, destinationField, departureField, arrivalField, searchField;
-    private JComboBox<String> searchDropdown;
+    private JTextField idField, nameField, searchField;
+    private JComboBox<String> sourceComboBox, destinationComboBox, departureTimeComboBox, arrivalTimeComboBox,
+            searchDropdown;
     private JButton searchButton, addButton, removeButton, updateButton, backButton;
     private JPanel inputPanel, contentPane;
 
@@ -33,6 +38,13 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
         trainList = new TrainList(100, "GUI/Resources/trainlist.txt");
         trainList.loadFromFile();
 
+        // Load train schedules from file
+        scheduleList = new TrainScheduleList(100, "GUI/Resources/schedules.txt");
+        scheduleList.loadFromFile();
+        // Load train routes from file
+        trainRouteList = new TrainRouteList(100, "GUI/Resources/TrainRouteList.txt");
+        trainRouteList.loadFromFile();
+
         // Set the frame properties
         setTitle("Train List");
         setSize(800, 600);
@@ -43,7 +55,6 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
         // Create table model and table
         String[] columnNames = { "ID", "Name", "Source", "Destination", "Departure Time", "Arrival Time" };
         model = new DefaultTableModel(columnNames, 0);
-        model.addTableModelListener(this);
         table = new JTable(model);
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.setAutoCreateRowSorter(true);
@@ -51,10 +62,12 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
         // Adjust font and row height for table
         table.setFont(tableFont);
         table.setRowHeight(30);
+
         // Populate table with train data
         for (Train train : trainList.getAllTrains()) {
-            Object[] row = { train.getTransportID(), train.getTransportName(), train.getSource(),
-                    train.getDestination(), train.getDepartureTime(), train.getArrivalTime() };
+            Object[] row = { train.getTrainID(), train.getTransportName(), train.getSource(),
+                    train.getDestination(), train.getSchedule().getDepartureTime(),
+                    train.getSchedule().getArrivalTime() };
             model.addRow(row);
         }
 
@@ -63,21 +76,20 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
         idField.setFont(fieldFont);
         nameField = new JTextField(8);
         nameField.setFont(fieldFont);
-        sourceField = new JTextField(8);
-        sourceField.setFont(fieldFont);
-        destinationField = new JTextField(8);
-        destinationField.setFont(fieldFont);
-        departureField = new JTextField(8);
-        departureField.setFont(fieldFont);
-        arrivalField = new JTextField(8);
-        arrivalField.setFont(fieldFont);
         searchField = new JTextField(8);
         searchField.setFont(fieldFont);
+        sourceComboBox = new JComboBox<>();
+        sourceComboBox.setFont(comboFont);
+        destinationComboBox = new JComboBox<>();
+        destinationComboBox.setFont(comboFont);
+        departureTimeComboBox = new JComboBox<>();
+        departureTimeComboBox.setFont(comboFont);
+        arrivalTimeComboBox = new JComboBox<>();
+        arrivalTimeComboBox.setFont(comboFont);
         searchDropdown = new JComboBox<>(new String[] { "ID", "Name" });
         searchDropdown.setFont(comboFont);
 
         // Buttons
-
         searchButton = new JButton("Search");
         searchButton.setFont(buttonFont);
         addButton = new JButton("Add");
@@ -101,6 +113,30 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
         backButton.setBackground(Color.GRAY);
         backButton.setForeground(Color.WHITE);
 
+        // Populate the source, destination, departure time, and arrival time dropdown
+        // menus
+       // Populate the source, destination, departure time, and arrival time dropdown menus
+// Populate the source drop-down menu
+for (TrainRoute trainRoute : trainRouteList.getAllRoutes()) {
+    sourceComboBox.addItem(trainRoute.getSource());
+}
+
+// Populate the destination drop-down menu
+for (TrainRoute trainRoute : trainRouteList.getAllRoutes()) {
+    destinationComboBox.addItem(trainRoute.getDestination());
+}
+
+// Populate the departure time drop-down menu
+for (TrainSchedule trainSchedule : scheduleList.getAllSchedules()) {
+    departureTimeComboBox.addItem(trainSchedule.getDepartureTime());
+}
+
+// Populate the arrival time drop-down menu
+for (TrainSchedule trainSchedule : scheduleList.getAllSchedules()) {
+    arrivalTimeComboBox.addItem(trainSchedule.getArrivalTime());
+}
+
+
         searchButton.addActionListener(this);
         addButton.addActionListener(this);
         removeButton.addActionListener(this);
@@ -116,13 +152,13 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
         inputPanel.add(createLabel("Name:"));
         inputPanel.add(nameField);
         inputPanel.add(createLabel("Source:"));
-        inputPanel.add(sourceField);
+        inputPanel.add(sourceComboBox);
         inputPanel.add(createLabel("Destination:"));
-        inputPanel.add(destinationField);
+        inputPanel.add(destinationComboBox);
         inputPanel.add(createLabel("Departure Time:"));
-        inputPanel.add(departureField);
+        inputPanel.add(departureTimeComboBox);
         inputPanel.add(createLabel("Arrival Time:"));
-        inputPanel.add(arrivalField);
+        inputPanel.add(arrivalTimeComboBox);
         inputPanel.add(createLabel("Search by:"));
         inputPanel.add(searchDropdown);
         inputPanel.add(createLabel("Search text:"));
@@ -172,20 +208,22 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
                     Train train = trainList.getTrainByID(searchID);
                     if (train != null) {
                         model.setRowCount(0);
-                        Object[] row = { train.getTransportID(), train.getTransportName(), train.getSource(),
-                                train.getDestination(), train.getDepartureTime(), train.getArrivalTime() };
+                        Object[] row = { train.getTrainID(), train.getTransportName(), train.getSource(),
+                                train.getDestination(), train.getSchedule().getDepartureTime(),
+                                train.getSchedule().getArrivalTime() };
                         model.addRow(row);
                     } else {
-                        JOptionPane.showMessageDialog(contentPane, "Train with ID " + searchID + " not found.", "Error",
-                                JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(contentPane, "Train with ID " + searchID + " not found.",
+                                "Error Message", JOptionPane.ERROR_MESSAGE);
                     }
                 } else if (searchDropdown.getSelectedItem().equals("Name")) {
                     Train[] trains = trainList.getTrainsByName(searchText);
                     if (trains != null && trains.length > 0) {
                         model.setRowCount(0);
                         for (Train train : trains) {
-                            Object[] row = { train.getTransportID(), train.getTransportName(), train.getSource(),
-                                    train.getDestination(), train.getDepartureTime(), train.getArrivalTime() };
+                            Object[] row = { train.getTrainID(), train.getTransportName(), train.getSource(),
+                                    train.getDestination(), train.getSchedule().getDepartureTime(),
+                                    train.getSchedule().getArrivalTime() };
                             model.addRow(row);
                         }
                     } else {
@@ -193,16 +231,16 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
                                 "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
-            }
-            // Inside the addButton ActionListener
-            else if (button.getText().equals("Add")) {
+            } else if (button.getText().equals("Add")) {
                 int id = Integer.parseInt(idField.getText());
                 String name = nameField.getText();
-                String source = sourceField.getText();
-                String destination = destinationField.getText();
-                String departureTime = departureField.getText();
-                String arrivalTime = arrivalField.getText();
-                Train train = new Train(id, name, source, destination, departureTime, arrivalTime);
+                String source = (String) sourceComboBox.getSelectedItem();
+                String destination = (String) destinationComboBox.getSelectedItem();
+                String departureTime = (String) departureTimeComboBox.getSelectedItem();
+                String arrivalTime = (String) arrivalTimeComboBox.getSelectedItem();
+                TrainRoute route = new TrainRoute(id, source, destination, id, id);
+                TrainSchedule schedule = new TrainSchedule(id, departureTime, arrivalTime);
+                Train train = new Train(id, name, schedule, route);
 
                 if (trainList.getTrainByID(id) == null) {
                     trainList.addTrain(train);
@@ -232,10 +270,10 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
                     Train train = trainList.getTrainByID(id);
                     if (train != null) {
                         String name = nameField.getText();
-                        String source = sourceField.getText();
-                        String destination = destinationField.getText();
-                        String departureTime = departureField.getText();
-                        String arrivalTime = arrivalField.getText();
+                        String source = (String) sourceComboBox.getSelectedItem();
+                        String destination = (String) destinationComboBox.getSelectedItem();
+                        String departureTime = (String) departureTimeComboBox.getSelectedItem();
+                        String arrivalTime = (String) arrivalTimeComboBox.getSelectedItem();
 
                         if (!name.equals("")) {
                             train.setTransportName(name);
@@ -250,11 +288,11 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
                             model.setValueAt(destination, selectedRow, 3);
                         }
                         if (!departureTime.equals("")) {
-                            train.setDepartureTime(departureTime);
+                            train.getSchedule().setDepartureTime(departureTime);
                             model.setValueAt(departureTime, selectedRow, 4);
                         }
                         if (!arrivalTime.equals("")) {
-                            train.setArrivalTime(arrivalTime);
+                            train.getSchedule().setArrivalTime(arrivalTime);
                             model.setValueAt(arrivalTime, selectedRow, 5);
                         }
                         trainList.saveToFile(); // Save the updated train information to file
@@ -264,59 +302,22 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
                                 JOptionPane.ERROR_MESSAGE);
                     }
                 }
-            }
-
-            else if (button.getText().equals("Go back to Dashboard")) {
+            } else if (button.getText().equals("Go back to Dashboard")) {
                 dispose();
                 new DashboardGUI();
             }
-
         }
     }
 
     public void clearFields() {
         idField.setText("");
         nameField.setText("");
-        sourceField.setText("");
-        destinationField.setText("");
-        departureField.setText("");
-        arrivalField.setText("");
+        sourceComboBox.setSelectedIndex(0);
+        destinationComboBox.setSelectedIndex(0);
+        departureTimeComboBox.setSelectedIndex(0);
+        arrivalTimeComboBox.setSelectedIndex(0);
         searchField.setText("");
         searchDropdown.setSelectedIndex(0);
-    }
-
-    @Override
-    public void tableChanged(TableModelEvent e) {
-        if (e.getType() == TableModelEvent.UPDATE) {
-            int row = e.getFirstRow();
-            int column = e.getColumn();
-
-            int id = (int) model.getValueAt(row, 0);
-            String value = (String) model.getValueAt(row, column);
-            Train train = trainList.getTrainByID(id);
-
-            if (train != null) {
-                switch (column) {
-                    case 1:
-                        train.setTransportName(value);
-                        break;
-                    case 2:
-                        train.setSource(value);
-                        break;
-                    case 3:
-                        train.setDestination(value);
-                        break;
-                    case 4:
-                        train.setDepartureTime(value);
-                        break;
-                    case 5:
-                        train.setArrivalTime(value);
-                        break;
-                }
-                // Assume you have a method called updateTrain in your trainList class
-                trainList.updateTrain(train);
-            }
-        }
     }
 
     public static void main(String[] args) {
@@ -333,8 +334,11 @@ public class TrainListGUI extends JFrame implements ActionListener, TableModelLi
         }
 
         // Run the GUI
+        // create an instance of TrainListGUI
         TrainListGUI trainListGUI = new TrainListGUI();
-        trainListGUI.setVisible(true);
-    }
 
+        // call the setVisible method on the instance
+        trainListGUI.setVisible(true);
+
+    }
 }

@@ -29,7 +29,6 @@ public class DashboardGUI extends JFrame implements ActionListener {
         routesButton = new JButton("Routes");
         schedulesButton = new JButton("Schedules");
         ticketsButton = new JButton("Tickets");
-       // paymentsButton = new JButton("Payments");
         logoutButton = new JButton("Logout");
         aboutUsButton = new JButton("About Us");
 
@@ -39,7 +38,6 @@ public class DashboardGUI extends JFrame implements ActionListener {
         routesButton.addActionListener(this);
         schedulesButton.addActionListener(this);
         ticketsButton.addActionListener(this);
-      //  paymentsButton.addActionListener(this);
         logoutButton.addActionListener(this);
         aboutUsButton.addActionListener(this);
 
@@ -50,7 +48,6 @@ public class DashboardGUI extends JFrame implements ActionListener {
         panel.add(routesButton);
         panel.add(schedulesButton);
         panel.add(ticketsButton);
-        //panel.add(paymentsButton);
         panel.add(aboutUsButton);
         panel.add(logoutButton);
 
@@ -68,18 +65,19 @@ public class DashboardGUI extends JFrame implements ActionListener {
         } else if (e.getSource() == trainsButton) {
             dispose();
             new TrainListGUI();
-        } 
+        }
+        else if (e.getSource() == routesButton) {
+            dispose();
+            new TrainRouteGUI();
+        }
+        
         else if (e.getSource() == schedulesButton) {
             dispose();
-            new ScheduleListGUI();
+            new TrainScheduleGUI();
         } else if (e.getSource() == ticketsButton) {
             dispose();
             new TicketListGUI();
-        } 
-        // else if (e.getSource() == paymentsButton) {
-        //     dispose();
-        //     new PaymentListGUI();
-        // } 
+        }  
         else if (e.getSource() == aboutUsButton) {
             String message = "<html><b>Created By MD.Istiak Ahamed</b></html><br><br>";
             JOptionPane.showMessageDialog(this, message, "About Us", JOptionPane.INFORMATION_MESSAGE);

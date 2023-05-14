@@ -1,63 +1,71 @@
 package Entity;
 
-import List.TrainList.Schedule;
-
 public final class Train extends Transport {
 
-   
-    private int trainID;
-    private String source;
-    private String destination;
-    private String departureTime;
-    private String arrivalTime;
+    private TrainSchedule schedule;
+    private TrainRoute route;
 
-    public Train(int transportID, String transportName, String source, String destination, String departureTime, String arrivalTime) {
+    public Train(int transportID, String transportName, TrainSchedule schedule, TrainRoute route) {
         super(transportID, transportName);
-        this.source = source;
-        this.destination = destination;
-        this.departureTime = departureTime;
-        this.arrivalTime = arrivalTime;
+        this.schedule = schedule;
+        this.route = route;
     }
-    
-    
+
     public int getTrainID() {
-        return trainID=super.getTransportID();
-    }
-    // Getters and setters
-    public String getSource() {
-        return source;
+        return super.getTransportID();
     }
 
-    public void setSource(String source) {
-        this.source = source;
+    // Getters and setters for TrainSchedule and TrainRoute
+
+    public TrainSchedule getSchedule() {
+        return schedule;
     }
 
-    public String getDestination() {
-        return destination;
+    public void setSchedule(TrainSchedule schedule) {
+        this.schedule = schedule;
     }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
+    public TrainRoute getRoute() {
+        return route;
     }
 
-    public String getDepartureTime() {
-        return departureTime;
+    public void setRoute(TrainRoute route) {
+        this.route = route;
     }
 
-    public void setDepartureTime(String departureTime) {
-        this.departureTime = departureTime;
-    }
+    // Getters and setters for arrival time, destination, departure time, source using TrainSchedule and TrainRoute
 
     public String getArrivalTime() {
-        return arrivalTime;
+        return schedule.getArrivalTime();
     }
 
     public void setArrivalTime(String arrivalTime) {
-        this.arrivalTime = arrivalTime;
+        schedule.setArrivalTime(arrivalTime);
     }
 
-  
+    public String getDestination() {
+        return route.getDestination();
+    }
 
+    public void setDestination(String destination) {
+        route.setDestination(destination);
+    }
+
+    public String getDepartureTime() {
+        return schedule.getDepartureTime();
+    }
+
+    public void setDepartureTime(String departureTime) {
+        schedule.setDepartureTime(departureTime);
+    }
+
+    public String getSource() {
+        return route.getSource();
+    }
+
+    public void setSource(String source) {
+        route.setSource(source);
+    }
 
     @Override
     public void start() {
@@ -67,9 +75,5 @@ public final class Train extends Transport {
     @Override
     public void stop() {
         System.out.println("Train stopped.");
-    }
-
-    public boolean equalsIgnoreCase(String searchText) {
-        return false;
     }
 }

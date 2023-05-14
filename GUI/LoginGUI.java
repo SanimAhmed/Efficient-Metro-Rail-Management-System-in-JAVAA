@@ -22,6 +22,8 @@ public class LoginGUI extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIconImage(new ImageIcon("GUI/Resources/train.jpeg").getImage());
+        
+        
 
         // create the components
         JLabel titleLabel = new JLabel("Metro Rail Management System");
@@ -103,7 +105,7 @@ public class LoginGUI extends JFrame implements ActionListener {
         if (rememberMeCheckbox.isSelected()) {
             loadSavedCredentials();
         }
-
+        setResizable(false);
         // display the frame
         setVisible(true);
     }
