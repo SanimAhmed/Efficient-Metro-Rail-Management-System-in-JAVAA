@@ -43,16 +43,18 @@ public class PassengerList {
             }
         }
     }
-
     public void updatePassenger(Passenger passenger) {
         for (int i = 0; i < numPassengers; i++) {
             if (passengers[i].getPassengerID() == passenger.getPassengerID()) {
-                passengers[i] = passenger;
+                passengers[i].setPassengerName(passenger.getPassengerName());
+                passengers[i].setPassengerContact(passenger.getPassengerContact());
+                passengers[i].setPassengerEmail(passenger.getPassengerEmail());
                 saveToFile(); // call saveToFile method after updating passenger
                 break;
             }
         }
     }
+    
 
     public Passenger getPassengerByID(int passengerID) {
         for (int i = 0; i < numPassengers; i++) {

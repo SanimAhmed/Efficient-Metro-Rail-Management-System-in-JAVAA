@@ -46,6 +46,7 @@ public class TrainList {
                 }
                 trains[size - 1] = null;
                 size--;
+                saveToFile();
                 break;
             }
         }
@@ -55,6 +56,7 @@ public class TrainList {
         for (int i = 0; i < size; i++) {
             if (trains[i].getTransportID() == train.getTransportID()) {
                 trains[i] = train;
+                saveToFile();
                 break;
             }
         }

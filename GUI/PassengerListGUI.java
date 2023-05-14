@@ -2,6 +2,9 @@ package GUI;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+
 import javax.swing.table.DefaultTableModel;
 
 import Entity.Passenger;
@@ -11,7 +14,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class PassengerListGUI extends JFrame implements ActionListener {
+public class PassengerListGUI extends JFrame implements ActionListener,TableModelListener {
 
     private PassengerList passengerList;
     private JTable table;
@@ -19,13 +22,20 @@ public class PassengerListGUI extends JFrame implements ActionListener {
     private JTextField idField, nameField, contactField, emailField, searchField;
     private JComboBox<String> searchDropdown;
     private JPanel contentPane;
-
-    public PassengerListGUI() {
+ // Font size adjustment
+ private Font labelFont = new Font("Arial", Font.PLAIN, 18);
+ private Font fieldFont = new Font("Arial", Font.PLAIN, 16);
+ private Font tableFont = new Font("Arial", Font.PLAIN, 18);
+ private Font comboFont = new Font("Arial", Font.PLAIN, 16);
+    
+ 
+ public PassengerListGUI() {
         super("Passenger List");
+passengerList = new PassengerList(100, "GUI/Resources/passengers.txt");
+    passengerList.loadFromFile();
 
-        // Load passenger list from file
-        passengerList = new PassengerList(100, "GUI/Resources/passengers.csv");
-        passengerList.loadFromFile();
+    
+
 
         // set the frame properties
         setTitle("Passenger List");
@@ -33,13 +43,16 @@ public class PassengerListGUI extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIconImage(new ImageIcon("GUI/Resources/train.jpeg").getImage());
-
-        // Create table model and table
-        String[] columnNames = { "ID", "Name", "Contact", "Email" };
-        model = new DefaultTableModel(columnNames, 0);
+// Create table model and table
+String[] columnNames = { "ID", "Name", "Contact", "Email" };
+model = new DefaultTableModel(columnNames, 0);
+model.addTableModelListener(this);
         table = new JTable(model);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.setAutoCreateRowSorter(true);
+          // Adjust font and row height for table
+          table.setFont(tableFont);
+          table.setRowHeight(30);
 
         // Populate table with passengers
         for (Passenger passenger : passengerList.getAllPassengers()) {
@@ -50,9 +63,15 @@ public class PassengerListGUI extends JFrame implements ActionListener {
 
         // Create input fields
         idField = new JTextField(10);
+        idField.setFont(fieldFont);
+
         nameField = new JTextField(10);
+        nameField.setFont(fieldFont);
+
         contactField = new JTextField(10);
+        contactField.setFont(fieldFont);
         emailField = new JTextField(10);
+        emailField.setFont(fieldFont);
 
         // Create buttons
         JButton addButton = new JButton("Add");
@@ -82,26 +101,28 @@ public class PassengerListGUI extends JFrame implements ActionListener {
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
 
         // Create dropdowns and search button
-        String[] searchOptions = { "ID", "Name" };
-        searchDropdown = new JComboBox<>(searchOptions);
+        searchDropdown = new JComboBox<>(new String[] { "ID", "Name" });
+        searchDropdown.setFont(comboFont);
         searchField = new JTextField(10);
+        searchField.setFont(fieldFont);
         searchButton.addActionListener(this);
+        
 
         // Create panel for input fields and buttons
         JPanel inputPanel = new JPanel(new GridLayout(3, 4, 10, 10));
         inputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         inputPanel.setBackground(Color.WHITE);
-        inputPanel.add(new JLabel("ID:"));
+        inputPanel.add(createLabel("ID:"));
         inputPanel.add(idField);
-        inputPanel.add(new JLabel("Name:"));
+        inputPanel.add(createLabel("Name:"));
         inputPanel.add(nameField);
-        inputPanel.add(new JLabel("Contact:"));
+        inputPanel.add(createLabel("Contact:"));
         inputPanel.add(contactField);
-        inputPanel.add(new JLabel("Email:"));
+        inputPanel.add(createLabel("Email:"));
         inputPanel.add(emailField);
-        inputPanel.add(new JLabel("Search by:"));
+        inputPanel.add(createLabel("Search by:"));
         inputPanel.add(searchDropdown);
-        inputPanel.add(new JLabel("Search text:"));
+        inputPanel.add(createLabel("Search text:"));
         inputPanel.add(searchField);
         inputPanel.add(searchButton);
         inputPanel.add(addButton);
@@ -125,21 +146,21 @@ public class PassengerListGUI extends JFrame implements ActionListener {
 
         // Add content pane to frame
         setContentPane(contentPane);
+        setResizable(true);
 
         setVisible(true);
     }
-
-    public void updatePassenger(int passengerID, String passengerName, String passengerContact, String passengerEmail) {
-        Passenger passenger = passengerList.getPassengerByID(passengerID);
-        if (passenger != null) {
-            passenger.setPassengerName(passengerName);
-            passenger.setPassengerContact(passengerContact);
-            passenger.setPassengerEmail(passengerEmail);
-            passengerList.updatePassenger(passenger);
-        } else {
-            System.out.println("Passenger not found.");
-        }
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(labelFont);
+        label.setBorder(new EmptyBorder(0, 0, 5, 5));
+        return label;
     }
+
+ 
+    
+    
+    
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() instanceof JButton) {
@@ -203,19 +224,32 @@ public class PassengerListGUI extends JFrame implements ActionListener {
                 if (selectedRow != -1) {
                     int id = (int) model.getValueAt(selectedRow, 0);
                     Passenger passenger = passengerList.getPassengerByID(id);
-                    String name = nameField.getText();
-                    String contact = contactField.getText();
-                    String email = emailField.getText();
-                    passenger.setPassengerName(name);
-                    passenger.setPassengerContact(contact);
-                    passenger.setPassengerEmail(email);
-                    passengerList.updatePassenger(passenger);
-                    model.setValueAt(name, selectedRow, 1);
-                    model.setValueAt(contact, selectedRow, 2);
-                    model.setValueAt(email, selectedRow, 3);
-                    clearFields();
+                    if (passenger != null) {
+                        String name = nameField.getText();
+                        String contact = contactField.getText();
+                        String email = emailField.getText();
+                        if (!name.equals("")) {
+                            passenger.setPassengerName(name);
+                            model.setValueAt(name, selectedRow, 1);
+                        }
+                        if (!contact.equals("")) {
+                            passenger.setPassengerContact(contact);
+                            model.setValueAt(contact, selectedRow, 2);
+                        }
+                        if (!email.equals("")) {
+                            passenger.setPassengerEmail(email);
+                            model.setValueAt(email, selectedRow, 3);
+                        }
+                        passengerList.updatePassenger(passenger);
+                        clearFields();
+                    } else {
+                        JOptionPane.showMessageDialog(contentPane, "Passenger with ID " + id + " not found.", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
                 }
-            } else if (button.getText().equals("Go back to Dashboard")) {
+            }
+            
+             else if (button.getText().equals("Go back to Dashboard")) {
                 dispose();
                 DashboardGUI dashboardGUI = new DashboardGUI();
                 dashboardGUI.setVisible(true);
@@ -244,4 +278,30 @@ public class PassengerListGUI extends JFrame implements ActionListener {
         PassengerListGUI passengerListGUI = new PassengerListGUI();
         passengerListGUI.setVisible(true);
     }
-}
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        if (e.getType() == TableModelEvent.UPDATE) {
+            int row = e.getFirstRow();
+            int column = e.getColumn();
+
+            int id = (int) model.getValueAt(row, 0);
+            String value = (String) model.getValueAt(row, column);
+            Passenger passenger = passengerList.getPassengerByID(id);
+
+            if (passenger != null) {
+                switch (column) {
+                    case 1:
+                        passenger.setPassengerName(value);
+                        break;
+                    case 2:
+                        passenger.setPassengerContact(value);
+                        break;
+                    case 3:
+                        passenger.setPassengerEmail(value);
+                        break;
+                }
+                passengerList.updatePassenger(passenger);
+            }
+        }
+    }
+    }
