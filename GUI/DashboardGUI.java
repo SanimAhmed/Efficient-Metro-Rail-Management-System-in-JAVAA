@@ -9,8 +9,7 @@ public class DashboardGUI extends JFrame implements ActionListener {
     private JButton trainsButton;
     private JButton routesButton;
     private JButton schedulesButton;
-    private JButton ticketsButton;
-  //  private JButton paymentsButton;
+   private JButton ticketsButton;
     private JButton logoutButton;
     private JButton passengersButton;
     private JButton aboutUsButton;
@@ -74,12 +73,13 @@ public class DashboardGUI extends JFrame implements ActionListener {
         else if (e.getSource() == schedulesButton) {
             dispose();
             new TrainScheduleGUI();
-        } else if (e.getSource() == ticketsButton) {
-            dispose();
-            new TicketListGUI();
-        }  
+        }
+          else if (e.getSource() == ticketsButton) {
+           dispose();
+           new TicketGUI();
+         }  
         else if (e.getSource() == aboutUsButton) {
-            String message = "<html><b>Created By MD.Istiak Ahamed</b></html><br><br>";
+            String message = "<html><b>Created By TEAM FORTRAN</b></html><br><br>";
             JOptionPane.showMessageDialog(this, message, "About Us", JOptionPane.INFORMATION_MESSAGE);
         } else if (e.getSource() == logoutButton) {
             dispose();

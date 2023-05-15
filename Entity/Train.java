@@ -10,6 +10,7 @@ public final class Train extends Transport {
         this.schedule = schedule;
         this.route = route;
     }
+    
 
     public int getTrainID() {
         return super.getTransportID();
@@ -65,6 +66,12 @@ public final class Train extends Transport {
 
     public void setSource(String source) {
         route.setSource(source);
+    }
+  
+    public double calculatePrice(int distance) {
+        double basePrice = 100;
+        double pricePerKm = 5;
+        return basePrice + (distance * pricePerKm);
     }
 
     @Override

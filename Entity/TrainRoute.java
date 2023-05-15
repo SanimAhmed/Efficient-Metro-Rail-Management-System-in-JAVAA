@@ -55,6 +55,12 @@ public class TrainRoute {
         this.duration = duration;
     }
 
+    public double calculatePrice(int distance) {
+        double basePrice = 100;
+        double pricePerKm = 5;
+        return basePrice + (distance * pricePerKm);
+    }
+
     public void displayRoute() {
         System.out.println("Source: " + source);
         System.out.println("Destination: " + destination);
